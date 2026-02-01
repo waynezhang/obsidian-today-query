@@ -3,6 +3,8 @@ name: Node.js build
 on:
     push:
         branches: ["**"]
+        tags:
+            - "*.*.*"
     pull_request:
         branches: ["**"]
 
@@ -25,4 +27,8 @@ jobs:
             - run: npm ci
             - run: npm run build --if-present
             - run: npm run lint
+            - name: Create release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: gh release create "${{ github.ref_name }}" main.js styles.css manifest.json --title "${{ github.ref_name }}"
 
