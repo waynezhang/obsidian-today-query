@@ -3,6 +3,23 @@ import { DEFAULT_SETTINGS, TodayQuerySettings, TodayQuerySettingTab } from './se
 
 const FOOTER_CLS = 'today-query-footer';
 
+interface LeafWithId {
+	id: string;
+}
+
+interface AppWithInternalPlugins {
+	internalPlugins?: {
+		getPluginById?(id: string): {
+			instance?: {
+				options?: {
+					format?: string;
+					folder?: string;
+				};
+			};
+		} | undefined;
+	};
+}
+
 export default class TodayQueryPlugin extends Plugin {
 	settings: TodayQuerySettings;
 	private footerComponents: Map<string, JournalFooter> = new Map();
@@ -37,7 +54,7 @@ export default class TodayQueryPlugin extends Plugin {
 			const view = leaf.view;
 			if (!(view instanceof MarkdownView)) continue;
 			if (view.file && this.isTodaysDailyNote(view.file.path)) {
-				const key = `md-${(leaf as any).id}`;
+				const key = `md-${(leaf as unknown as LeafWithId).id}`;
 				activeKeys.add(key);
 				this.ensureFooter(view, key);
 			}
@@ -66,7 +83,7 @@ export default class TodayQueryPlugin extends Plugin {
 				const sizer = container.querySelector('.cm-sizer');
 				if (!sizer) return;
 
-				const key = `dne-${(leaf as any).id}-${i}`;
+				const key = `dne-${(leaf as unknown as LeafWithId).id}-${i}`;
 				activeKeys.add(key);
 
 				if (this.footerComponents.has(key)) {
@@ -133,7 +150,8 @@ export default class TodayQueryPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const data = ((await this.loadData()) ?? {}) as Partial<TodayQuerySettings>;
+		this.settings = { ...DEFAULT_SETTINGS, ...data };
 	}
 
 	async saveSettings() {
@@ -143,9 +161,9 @@ export default class TodayQueryPlugin extends Plugin {
 	}
 
 	private getDailyNotesConfig(): { format: string; folder: string } {
-		const internalPlugins = (this.app as any).internalPlugins;
-		const dailyNotesPlugin = internalPlugins?.getPluginById?.('daily-notes');
-		const options = dailyNotesPlugin?.instance?.options || {};
+		const appInternal = this.app as unknown as AppWithInternalPlugins;
+		const dailyNotesPlugin = appInternal.internalPlugins?.getPluginById?.('daily-notes');
+		const options = dailyNotesPlugin?.instance?.options ?? {};
 		return {
 			format: options.format || 'YYYY-MM-DD',
 			folder: options.folder?.replace(/\/+$/, '') || '',
@@ -173,7 +191,7 @@ class JournalFooter extends Component {
 		} else {
 			this.container.appendChild(this.el);
 		}
-		MarkdownRenderer.render(
+		void MarkdownRenderer.render(
 			this.plugin.app,
 			this.plugin.settings.footerMarkdown,
 			this.el,

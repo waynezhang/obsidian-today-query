@@ -26,7 +26,7 @@ export class TodayQuerySettingTab extends PluginSettingTab {
 			.setDesc('Markdown content to render at the bottom of today\'s daily note.')
 			.addTextArea(text => {
 				text
-					.setPlaceholder('Enter markdown content...')
+					.setPlaceholder('Enter Markdown content...')
 					.setValue(this.plugin.settings.footerMarkdown)
 					.onChange(async (value) => {
 						this.plugin.settings.footerMarkdown = value;
