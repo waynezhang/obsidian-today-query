@@ -1,0 +1,12 @@
+.today-query-footer {
+	max-width: var(--max-width);
+    width: var(--line-width);
+    margin-inline: var(--content-margin) !important;
+
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+.today-query-footer .block-language-todoseq ul > li {
+	margin-inline-start: 3ch;
+}

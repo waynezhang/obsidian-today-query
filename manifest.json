@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-today-query",
+	"name": "Today Query",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Render custom markdown content at the bottom of today's daily note.",
+	"author": "Linghua Zhang",
+	"authorUrl": "https://github.com/waynezhang",
+	"isDesktopOnly": false
+}
